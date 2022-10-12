@@ -7,9 +7,23 @@ pipeline {
   }
   stages {
     stage('Build') {
-      steps {
-        script {
-          scripts/build.sh
+      parallel {
+        stage('Build') {
+          steps {
+            script {
+              scripts/build.sh
+            }
+
+          }
+        }
+
+        stage('Test step') {
+          steps {
+            script {
+              ls
+            }
+
+          }
         }
 
       }
