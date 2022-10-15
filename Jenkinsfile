@@ -34,7 +34,7 @@ pipeline {
     stage('PushImage') {
       steps {
         script {
-          docker.withRegistry('', 'dockerhub-id') {
+          docker.withRegistry('', 'docker-hub') {
             docker.image("${registry}:${env.BUILD_ID}").push('latest')
             docker.image("${registry}:${env.BUILD_ID}").push("${env.BUILD_ID}")
           }
