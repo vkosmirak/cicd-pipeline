@@ -1,21 +1,50 @@
 pipeline {
-  agent {
-    dockerfile {
-      filename 'Dockerfile'
+  agent any
+  stages {
+    stage('GitCheckout') {
+      steps {
+        script {
+          checkout scm
+        }
+
+      }
     }
 
-  }
-  stages {
-    stage('Build') {
+    stage('BuildApp') {
       steps {
-        sh 'scripts/build.sh'
+        sh 'script scripts/build.sh'
       }
     }
 
     stage('Test') {
       steps {
-        sh 'scripts/test.sh'
+        sh 'script scripts/test.sh'
       }
     }
+
+    stage('BuildImage') {
+      steps {
+        script {
+          def customImage = docker.build("${registry}:${env.BUILD_ID}")
+        }
+
+      }
+    }
+
+    stage('PushImage') {
+      steps {
+        script {
+          docker.withRegistry('', 'dockerhub-id') {
+            docker.image("${registry}:${env.BUILD_ID}").push('latest')
+            docker.image("${registry}:${env.BUILD_ID}").push("${env.BUILD_ID}")
+          }
+        }
+
+      }
+    }
+
+  }
+  environment {
+    registry = 'vkosmirak/cicd-pipeline'
   }
 }
